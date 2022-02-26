@@ -12,9 +12,12 @@ module.exports = {
 
   assetsDir: 'assets',
 
-  indexPath: 'index.html',
-
   // transpileDependencies: [
   //   'vuetify'
   // ]
+  indexPath: 'index.html',
+
+  transpileDependencies: [
+    'vuetify'
+  ]
 }
