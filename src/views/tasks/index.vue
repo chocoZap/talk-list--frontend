@@ -1,8 +1,10 @@
 <template lang="pug">
   div.main
     div.recommend-wrap
-      p 今日のおすすめ:
-      p {{ recommendTalk }}
+      div.recommend-content
+        p 今日のおすすめ:
+        p {{ recommendTalk }}
+      button.shuffle-btn(@click="setRecommendTalk()") 変更
     div.add-btn-wrap
       button.add-btn(@click="addList = !addList") {{ addList? "キャンセル" : "新規作成" }}
     div.table-wrap
@@ -11,15 +13,15 @@
           tr
             th テーマ一覧
             th 詳細
-        tbody.table-body 
+        tbody.table-body
           tr.input-wrap(v-show="addList")
             td.input
               input(type="text" v-model="content")
-            td 
-              span(@click="hoge") 追加 
+            td
+              span(@click="addTalkContent") 追加
           tr(v-for="talkList in talkLists")
             td {{ talkList.content }}
-            td 
+            td
               span 詳細
     create-modal(ref="create")
     detail-modal(ref="detail")
@@ -39,26 +41,30 @@ export default {
       content: '',
       addList: false,
       preventClick: false,
+      recommendTalk: '',
     }
   },
   computed: {
     ...mapState({
       talkLists: (state) => state.talkList.talkLists
     }),
-    recommendTalk() {
-      const items = this.talkLists.map((talkList) => talkList.content)
-      return this.shuffle(items).shift()
-    }
   },
   mounted() {
     this.getTalkLists()
   },
   methods: {
     ...mapActions({
-      getTalkLists: 'talkList/index',
+      loadTalkLists: 'talkList/index',
       store: 'talkList/store',
       deleteTalkList: 'talkList/delete'
     }),
+    /**
+     * シャッフル
+     *
+     * @param {Array} array トークリストの配列
+     * @returns {Array} array シャッフルされたトークリストの配列
+     *
+     */
     shuffle(array) {
       for (let i = array.length - 1; i >= 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -66,7 +72,29 @@ export default {
       }
       return array;
     },
-    async hoge() {
+    /**
+     * トークリストの取得
+     *
+     */
+    async getTalkLists() {
+      const res = await this.loadTalkLists()
+      if (res.status === 200) {
+        this.setRecommendTalk()
+      }
+    },
+    /**
+     * 今日のおすすめの取得
+     *
+     */
+    setRecommendTalk() {
+      const items = this.talkLists.map((talkList) => talkList.content)
+      this.recommendTalk = this.shuffle(items).shift()
+    },
+    /**
+     * トーク内容の新規追加
+     *
+     */
+    async addTalkContent() {
       if (this.preventClick) return
       this.preventClick = true
       const status = await this.store({ content: this.content })
@@ -89,17 +117,29 @@ export default {
   .recommend-wrap {
     color: #313131;
     display: flex;
+    justify-content: space-between;
     padding: 14px 30px 14px 14px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 3px 16px #dfe5ea;
-    p {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-bottom: 0;
-      &:last-of-type {
-        padding-left: 10px;
+    .recommend-content {
+      display: flex;
+      p {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 0;
+        &:last-of-type {
+          padding-left: 10px;
+        }
       }
+    }
+    .shuffle-btn {
+      background: #2b7bcb;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      padding: 0 10px;
     }
   }
   .add-btn-wrap {

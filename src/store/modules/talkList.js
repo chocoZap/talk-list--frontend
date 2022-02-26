@@ -15,8 +15,8 @@ export  const mutations = {
 }
 
 export const actions = {
-  index ({ dispatch, commit }) {
-    dispatch(
+  async index ({ dispatch, commit }) {
+    return await dispatch(
       'http/get',
       {
         url: `/api/talkLists`
@@ -26,6 +26,7 @@ export const actions = {
       },
     ).then((res) => {
       commit('setTalkLists', res.data)
+      return res
     })
   },
   show ({ dispatch, commit }, id) {
