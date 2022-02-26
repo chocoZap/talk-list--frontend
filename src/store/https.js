@@ -1,12 +1,14 @@
 import axios from 'axios'
 
+const BASEURL = process.env.VUE_APP_API_URL
+console.log(BASEURL)
 const actions = {
   async request({}, { method, url, data }) {
     const options = {
       method,
-      url,
+      url: BASEURL + url,
       data
-    }    
+    }
     const res = await axios(options)
 
     return res
