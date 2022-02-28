@@ -2,8 +2,8 @@
   div.main
     div.recommend-wrap
       div.recommend-content
-        p 今日のおすすめ:
-        p {{ recommendTalk }}
+        p.recommend-title 今日のおすすめ
+        p.recommend-talk {{ recommendTalk }}
       button.shuffle-btn(@click="setRecommendTalk()") 変更
     div.add-btn-wrap
       button.add-btn(@click="addList = !addList") {{ addList? "キャンセル" : "新規作成" }}
@@ -12,7 +12,7 @@
         thead.table-header
           tr
             th テーマ一覧
-            th 詳細
+            th
         tbody.table-body
           tr.input-wrap(v-show="addList")
             td.input
@@ -21,8 +21,9 @@
               span(@click="addTalkContent") 追加
           tr(v-for="talkList in talkLists")
             td {{ talkList.content }}
-            td
-              span 詳細
+            td.btn-wrap
+              //- レビュー機能につなげる同線
+              //- span 詳細
     create-modal(ref="create")
     detail-modal(ref="detail")
 </template>
@@ -118,6 +119,7 @@ export default {
     color: #313131;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 14px 30px 14px 14px;
     background: #fff;
     border-radius: 10px;
@@ -128,8 +130,27 @@ export default {
         font-size: 1.5rem;
         font-weight: bold;
         margin-bottom: 0;
-        &:last-of-type {
+        &.recommend-title::after {
+          content: '：';
+        }
+        &.recommend-talk {
           padding-left: 10px;
+        }
+      }
+      @media screen and (max-width: 767px) {
+        flex-direction: column;
+        max-width: 70%;
+        p {
+          &.recommend-title {
+            font-size: 0.75rem;
+            &::after {
+              display: none;
+            }
+          }
+          &.recommend-talk {
+            font-size: 1rem;
+            padding-left: 0;
+          }
         }
       }
     }
@@ -139,7 +160,11 @@ export default {
       color: #fff;
       font-weight: 600;
       letter-spacing: 0.7px;
-      padding: 0 10px;
+      padding: 10px;
+      @media screen and (max-width: 767px) {
+        max-width: 55px;
+        max-height: 55px;
+      }
     }
   }
   .add-btn-wrap {
@@ -174,10 +199,8 @@ export default {
             font-weight: 600;
             border-bottom: 1px solid #dfe5ea;
             padding-bottom: 14px;
-            &:last-of-type {
-              text-align: right;
-              padding-right: 40px;
-            }
+            text-align: left;
+            padding-left: 10px;
           }
         }
       }
@@ -201,6 +224,7 @@ export default {
               padding-left: 10px;
             }
             &:last-of-type {
+              min-width: 100px;
               text-align: right;
               padding-right: 30px;
             }
@@ -215,6 +239,9 @@ export default {
                 border-radius: 10px;
                 box-shadow: 0 3px 16px #dfe5ea;
                 padding: 8px 0 8px 12px;
+                @media screen and (max-width: 767px) {
+                  width: 100%;
+                }
               }
               span {
                 background: #fff;
