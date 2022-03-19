@@ -23,7 +23,7 @@
             td {{ talkList.content }}
             td.btn-wrap
               //- レビュー機能につなげる同線
-              //- span 詳細
+              span {{ talkList.count }}
     create-modal(ref="create")
     detail-modal(ref="detail")
 </template>
@@ -81,6 +81,7 @@ export default {
       const res = await this.loadTalkLists()
       if (res.status === 200) {
         this.setRecommendTalk()
+        this.setReviewsCount()
       }
     },
     /**
@@ -90,6 +91,15 @@ export default {
     setRecommendTalk() {
       const items = this.talkLists.map((talkList) => talkList.content)
       this.recommendTalk = this.shuffle(items).shift()
+    },
+    /**
+     *
+     */
+    setReviewsCount() {
+      for (const item of this.talkLists) {
+        const num = item.reviews.length
+        item.count = `${num}件`
+      }
     },
     /**
      * トーク内容の新規追加
