@@ -1,18 +1,17 @@
 <template lang="pug">
-  div.main
-    div.recommend-wrap
-      div.recommend-content
+  .main
+    .recommend-wrap
+      .recommend-content
         p.recommend-title 今日のおすすめ
         p.recommend-talk {{ recommendTalk }}
       button.shuffle-btn(@click="setRecommendTalk()") 変更
-    div.add-btn-wrap
-      button.add-btn(@click="addList = !addList") {{ addList? "キャンセル" : "新規作成" }}
-    div.table-wrap
+    .add-btn-wrap
+      button.add-btn(@click="changeMode()") {{ addList? "キャンセル" : "新規作成" }}
+    .table-wrap
       table
         thead.table-header
           tr
-            th テーマ一覧
-            th
+            th(:colspan="2") テーマ一覧
         tbody.table-body
           tr.input-wrap(v-show="addList")
             td.input
@@ -20,21 +19,31 @@
             td
               span(@click="addTalkContent") 追加
           tr(v-for="talkList in talkLists")
-            td {{ talkList.content }}
+            td
+              p(v-text="talkList.content")
+              star-rating(
+                v-model="talkList.reviewScore"
+                :increment="0.1"
+                :star-points="[23,2, 14,17, 0,19, 10,34, 7,50, 23,43, 38,50, 36,34, 46,19, 31,17]"
+                :star-size="12"
+                text-class="star-text"
+                read-only
+              )
             td.btn-wrap
-              //- レビュー機能につなげる同線
-              span {{ talkList.count }}
-    create-modal(ref="create")
-    detail-modal(ref="detail")
+              span(@click="openDetailModal(talkList)") 詳細
+    confirm-modal(ref="confirm")
+    detail-modal(ref="detail" :select-item="selectItem" @close-event="resetSelectItem()")
 </template>
 <script>
-import { mapState, mapActions } from 'vuex'
-import CreateModal from '@/components/Modal/CreateModal.vue'
+import StarRating from 'vue-star-rating'
+import ConfirmModal from '@/components/Modal/ConfirmModal'
 import DetailModal from '@/components/Modal/DetailModal.vue'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   components: {
-    CreateModal,
+    StarRating,
+    ConfirmModal,
     DetailModal,
   },
   data() {
@@ -43,6 +52,12 @@ export default {
       addList: false,
       preventClick: false,
       recommendTalk: '',
+      selectItem: {
+        content: '',
+        count: '',
+        reviewScore: 0,
+        reviews: []
+      },
     }
   },
   computed: {
@@ -74,8 +89,14 @@ export default {
       return array;
     },
     /**
+     * 選択したトーク内容をリセットする
+     */
+    async resetSelectItem() {
+      await this.getTalkLists()
+      this.selectItem = {}
+    },
+    /**
      * トークリストの取得
-     *
      */
     async getTalkLists() {
       const res = await this.loadTalkLists()
@@ -93,12 +114,20 @@ export default {
       this.recommendTalk = this.shuffle(items).shift()
     },
     /**
-     *
+     * レビューをセットする
      */
     setReviewsCount() {
       for (const item of this.talkLists) {
         const num = item.reviews.length
+        let reviewScore = 0
+        if (num > 0) {
+          const sum = item.reviews.map(item => item.stars).reduce((acc, cur) => {
+            return parseFloat(acc) + parseFloat(cur)
+          })
+          reviewScore = sum / num
+        }
         item.count = `${num}件`
+        item.reviewScore = parseFloat(reviewScore)
       }
     },
     /**
@@ -110,11 +139,28 @@ export default {
       this.preventClick = true
       const status = await this.store({ content: this.content })
       if (status === 200) {
-        this.$refs.create.dialog = true
         this.content = ''
         this.preventClick = false
         this.addList = false
+        this.getTalkLists()
       }
+    },
+    /**
+     * 新規作成モードを変更する
+     */
+    changeMode() {
+      this.addList = !this.addList
+      this.content = ''
+    },
+    /**
+     * レビュー表示モーダルを表示する
+     *
+     * @param {Object} item 選択したトーク
+     *
+     */
+    openDetailModal(item) {
+      this.selectItem = item
+      this.$refs.detail.dialog = true
     }
   },
 }
@@ -125,6 +171,8 @@ export default {
   padding: 0 20px;
   margin-top: 110px;
   background: #f8f8f8;
+  max-height: 100vh;
+  overflow: hidden;
   .recommend-wrap {
     color: #313131;
     display: flex;
@@ -193,9 +241,12 @@ export default {
   .table-wrap {
     width: 100%;
     height: calc(100vh - 243px);
+    max-height: calc(100vh - 243px);
     overflow: auto;
     table {
       width: 100%;
+      height: 100%;
+      max-height: 100%;
       .table-header {
         tr {
           width: 100%;
@@ -223,6 +274,12 @@ export default {
             font-weight: 600;
             border-bottom: 1px solid #dfe5ea;
             padding: 19px 0;
+            p {
+              margin-bottom: 0;
+            }
+            ::v-deep .star-text {
+              font-size: 14px;
+            }
             span {
               background: #2b7bcb;
               color: #fff;
