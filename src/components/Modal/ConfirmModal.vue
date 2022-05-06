@@ -1,6 +1,6 @@
 <template lang="pug">
   v-dialog(v-model="dialog" persistent content-class="modal-wrap")
-    div.card-wrap 登録が完了しました
+    .card-wrap 登録が完了しました
     button(@click="dialog = false") 閉じる
 </template>
 

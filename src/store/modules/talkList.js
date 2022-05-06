@@ -30,7 +30,7 @@ export const actions = {
     })
   },
   show ({ dispatch, commit }, id) {
-    dispatch(
+    return dispatch(
       'http/get',
       {
         url: '/api/talkLists/' + id
@@ -38,9 +38,7 @@ export const actions = {
       {
         root: true
       },
-    ).then((res) => {
-      commit('setSelectedTalkList', res.data)
-    })
+    )
   },
   async store ({ dispatch, commit }, data) {
     return await dispatch(
