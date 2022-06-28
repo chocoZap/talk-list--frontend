@@ -11,7 +11,7 @@
       )
       input(type="number" :step="0.5" v-model="reviewStars" max="5" min="0" @change="setRating()")
       transition(name="number")
-        span(v-if="starScore < 0 || starScore > 5" class="description_top" v-text="errorMessage")
+        span(v-if="reviewStars < 0 || reviewStars > 5" class="description_top" v-text="errorMessage")
     textarea.textarea(type="text" v-model="reviewComment" @input="$emit('input-event', reviewComment)")
 </template>
 
