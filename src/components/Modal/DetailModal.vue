@@ -58,7 +58,7 @@ export default {
   computed: {
     isRegister() {
       const isReviewComment = this.reviewComment.trim().length > 0
-      const isReviewStars = this.reviewStars > 0
+      const isReviewStars = this.reviewStars > 0 && this.reviewStars <= 5
       return isReviewComment && isReviewStars
     }
   },
@@ -76,11 +76,11 @@ export default {
       const status = await this.store(data)
       if (status === 200) {
         this.closeDialog()
+        this.$emit('close-event')
         this.$refs.loadingBtn.isLoading = false
       }
     },
     closeDialog() {
-      this.$emit('close-event')
       this.reviewMode = false
       this.dialog = false
       this.reviewMode = false
