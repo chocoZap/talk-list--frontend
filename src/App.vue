@@ -22,5 +22,6 @@ export default {
 <style lang="scss">
 .v-main {
   background: #f8f8f8;
+  overflow: hidden;
 }
 </style>
